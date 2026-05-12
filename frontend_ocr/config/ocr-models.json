@@ -1,0 +1,8 @@
+{
+  "default": "nemotron3:33b",
+  "preferred": [
+    "nemotron3:33b",
+    "gemma4:e4b",
+    "qwen3-vl:8b"
+  ]
+}
