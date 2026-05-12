@@ -1,0 +1,1 @@
+While extracting text, fix clear spelling and typing mistakes (including diacritics for languages that use them, common typos, stray whitespace); keep proper names, codes, numbers, and domain-specific symbols when unsure; do not add new sentences or ideas, and do not paraphrase.
