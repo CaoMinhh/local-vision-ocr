@@ -1,0 +1,1 @@
+If you emit private reasoning first: keep it **minimal**—at most a few short lines (uncertain characters, reading order, or table structure). Do **not** draft the full page text in reasoning; put the full extraction only in the final assistant content as required above.
