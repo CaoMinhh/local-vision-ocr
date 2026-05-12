@@ -90,12 +90,28 @@ cd local-vision-ocr
 
 ### 2. Create a virtual environment and install dependencies
 
+You can use either `venv` or `conda`. For faster dependency installation, this project uses `uv`.
+
+#### Option A: Using `venv` + `uv`
+
 ```bash
 python -m venv .venv
+
 source .venv/bin/activate      # Linux/macOS
 # .venv\Scripts\activate       # Windows
 
-pip install -r requirements.txt
+pip install uv
+uv pip install -r requirements.txt
+```
+
+#### Option B: Using `conda` + `uv`
+
+```bash
+conda create -n local-vision-ocr python=3.11 -y
+conda activate local-vision-ocr
+
+pip install uv
+uv pip install -r requirements.txt
 ```
 
 ### 3. Configure environment variables
@@ -251,7 +267,7 @@ OCR_HISTORY_STORE_IMAGES=1
 local-vision-ocr/
 ├── app.py                 # Main entry point
 ├── backend_ocr/           # OCR processing logic
-├── frontend_ocr/          # Web UI assets: HTML, CSS, JS
+├── frontend_ocr/                # Web UI assets: HTML, CSS, JS
 ├── Fig/                   # Demo screenshots
 ├── requirements.txt
 ├── .env.example
@@ -323,8 +339,3 @@ Distributed under the **MIT License**. See `LICENSE` for more information.
 ## 📬 Contact / Support
 
 * Open a GitHub issue: `https://github.com/CaoMinhh/local-vision-ocr/issues`
-* Optional email / Discord contact can be added later
-
-```
-
-Tên repo gợi ý: `local-vision-ocr`, `ollama-batch-ocr`, hoặc `vision-ocr-web`. Trong README trên mình dùng `local-vision-ocr` vì đủ rộng, không phụ thuộc model cụ thể.
