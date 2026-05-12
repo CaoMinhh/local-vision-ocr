@@ -57,7 +57,7 @@
         <b>Web interface – file upload</b>
       </td>
       <td align="center">
-        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg95rRklpEMJbBteovUg1h4HKXsHpKexsG92NnTYNPt7FG5vWVZZnZ4kfxPsfPIXwHS2CD7Vbt6JQCkkvjnI-pVExkhu1SBeRYhiHeKB-Yx2QmuOKPpHR7Xptt5pK318MsrkqKgyj0zZiw07WgPHuPo3O3vcJagt59qW-UHAWKvUv0N24pR_YovDcgp/s16000/3.png" width="400">
+        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj8BqekvEKiPJNabgrERRVOj6EstHglZuZttHqmZX5O-CZQESWhtFRhVLXCDqYzxsOC7j04lzhlPP0itqaMl6ipph3IncERnCO9hOiTAPUkioHDQonofh4AzSz78BH5ZP6_9w9td6wPw-m749TfkSPslRC7ImiG7Wfo8EKIQzM64starSPu3wCibb2p/s16000/latexocr.png" width="400">
         <br/>
         <b>Markdown + LaTeX OCR output</b>
       </td>
