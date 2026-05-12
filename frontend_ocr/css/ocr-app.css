@@ -1,0 +1,1216 @@
+/* nemotron3 — OCR UI styles (split from index.html) */
+
+.nav-tabs-dark .nav-link {
+  color: var(--bs-secondary);
+  border-color: transparent;
+}
+.nav-tabs-dark .nav-link:hover {
+  color: var(--bs-body-color);
+  border-color: var(--bs-border-color);
+}
+.nav-tabs-dark .nav-link.active {
+  color: var(--bs-body-color);
+  background-color: rgba(255, 255, 255, 0.06);
+  border-color: var(--bs-border-color);
+}
+
+/* Ollama live stream: model thinking (muted) vs OCR output */
+.ocr-live-thinking {
+  color: var(--bs-secondary-color);
+  opacity: 0.82;
+  border-left: 2px solid var(--bs-border-color);
+  padding-left: 0.5rem;
+}
+.ocr-live-stream {
+  color: var(--bs-body-color);
+}
+
+/* Font Mfizz — MongoDB leaf logo (navbar + config); see https://www.fizzed.com/oss/font-mfizz */
+.ocr-nav-mongo-badge .icon-mongodb {
+  font-size: 1.1rem;
+  line-height: 1;
+  vertical-align: middle;
+}
+#ocrViewConfig h3 .icon-mongodb {
+  font-size: 1.05rem;
+  vertical-align: -0.06em;
+  opacity: 0.95;
+}
+
+.ocr-history-row {
+  cursor: pointer;
+  padding-top: 0.65rem;
+  padding-bottom: 0.65rem;
+}
+.ocr-history-row:hover {
+  background-color: rgba(13, 110, 253, 0.12) !important;
+}
+.ocr-history-row .badge {
+  font-weight: 500;
+  font-size: 0.72rem;
+}
+.ocr-history-row .ocr-history-id-badge {
+  max-width: 100%;
+}
+
+.ocr-history-output-pre {
+  font-size: 0.78rem;
+}
+
+:root {
+  --ocr-preview-min: 380px;
+  --ocr-pane-max-h: calc(100vh - 9rem);
+  --ocr-pdf-embed-min: min(74vh, 50rem);
+  /* Raw OCR text region: fixed height once there is output — resizing JSON pane does not shrink this */
+  --ocr-raw-band-h: min(42vh, 28rem);
+}
+
+body {
+  min-height: 100vh;
+  background: linear-gradient(165deg, #0d1117 0%, #161b22 45%, #0d1117 100%);
+}
+    .navbar-brand i { color: var(--bs-primary); }
+    .ocr-lang-group {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      margin-left: auto;
+    }
+    .ocr-lang-icon {
+      display: flex;
+      align-items: center;
+      font-size: 1.15rem;
+      line-height: 1;
+      opacity: 0.88;
+      margin-right: 0.1rem;
+    }
+    .ocr-lang-btn {
+      line-height: 1.2;
+      padding: 0.25rem 0.5rem;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      border-radius: 0.35rem;
+      background: rgba(0, 0, 0, 0.25);
+      cursor: pointer;
+      opacity: 0.72;
+      transition: opacity 0.15s, border-color 0.15s, background 0.15s, box-shadow 0.15s;
+    }
+    .ocr-lang-btn:hover {
+      opacity: 1;
+      border-color: rgba(125, 211, 252, 0.55);
+      background: rgba(255, 255, 255, 0.07);
+    }
+    .ocr-lang-btn.ocr-lang-active {
+      opacity: 1;
+      border-color: var(--bs-primary);
+      box-shadow: 0 0 0 1px rgba(13, 110, 253, 0.4);
+    }
+    .ocr-lang-btn .ocr-lang-label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      line-height: 1.15;
+      white-space: nowrap;
+    }
+
+    /* —— OCR settings form —— */
+    .ocr-settings-card {
+      border-color: rgba(255, 255, 255, 0.12);
+      border-radius: 0.5rem;
+      background: linear-gradient(165deg, rgba(30, 35, 44, 0.96) 0%, rgba(15, 18, 24, 0.94) 50%, rgba(10, 13, 18, 0.96) 100%);
+      box-shadow:
+        0 0.12rem 0 rgba(255, 255, 255, 0.04) inset,
+        0 0.35rem 1.75rem rgba(0, 0, 0, 0.45);
+      overflow: hidden;
+    }
+    .ocr-settings-header {
+      background: rgba(0, 0, 0, 0.32);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+      font-size: 0.95rem;
+      letter-spacing: 0.01em;
+    }
+    .ocr-settings-body {
+      border-top: none;
+      padding-top: 1rem !important;
+      padding-bottom: 1rem !important;
+    }
+    .ocr-settings-label {
+      color: rgba(248, 250, 252, 0.88) !important;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+    .ocr-settings-label i {
+      opacity: 0.85;
+    }
+    .ocr-settings-field {
+      min-width: 0;
+    }
+    /* One row was forced nowrap at xl → overflow / crushed cols; wrap and cap widths instead */
+    .ocr-settings-row {
+      max-width: 100%;
+    }
+    .ocr-settings-row > [class*="col-"] {
+      min-width: 0;
+    }
+    .ocr-settings-control,
+    .ocr-model-select-group .form-select {
+      background-color: rgba(13, 17, 23, 0.92) !important;
+      border-color: rgba(148, 163, 184, 0.28) !important;
+      color: var(--bs-body-color) !important;
+    }
+    .ocr-settings-control:focus,
+    .ocr-model-select-group .form-select:focus {
+      border-color: rgba(59, 130, 246, 0.65) !important;
+      box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.22);
+    }
+    .ocr-model-select-group .input-group-text.ocr-input-icon {
+      background: rgba(30, 41, 59, 0.95) !important;
+      border-color: rgba(148, 163, 184, 0.28) !important;
+      color: rgba(148, 163, 184, 0.95);
+    }
+    .ocr-model-select-group .form-select {
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+    .ocr-settings-field--file .form-control[type="file"] {
+      padding: 0.32rem 0.6rem;
+      line-height: 1.4;
+      max-width: 100%;
+    }
+    .ocr-settings-field--file .form-control[type="file"]::file-selector-button {
+      margin-right: 0.65rem;
+      padding: 0.28rem 0.75rem;
+      border-radius: 0.25rem;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      background: rgba(51, 65, 85, 0.85);
+      color: rgba(248, 250, 252, 0.95);
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+    .ocr-settings-field--file .form-control[type="file"]::file-selector-button:hover {
+      background: rgba(71, 85, 105, 0.95);
+      border-color: rgba(125, 211, 252, 0.45);
+    }
+    .ocr-settings-field .form-check {
+      padding-left: 1.35rem;
+    }
+    .ocr-settings-field .form-check-input {
+      margin-top: 0.2rem;
+    }
+    .ocr-settings-field .form-check-label {
+      color: rgba(226, 232, 240, 0.92);
+      line-height: 1.35;
+    }
+    @media (min-width: 1200px) {
+      /* Was nowrap: one line overflowed the card; wrap keeps Bootstrap col widths, new line aligns to bottom */
+      .ocr-settings-row {
+        flex-wrap: wrap;
+        align-content: flex-end;
+      }
+      .ocr-settings-row > .col-xl-auto {
+        flex: 0 0 auto;
+        width: auto;
+        max-width: 100%;
+      }
+    }
+
+    .card {
+      border-color: rgba(255, 255, 255, 0.08);
+      box-shadow: 0 0.35rem 1.25rem rgba(0, 0, 0, 0.35);
+    }
+    .card-header {
+      border-bottom-color: rgba(255, 255, 255, 0.08);
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    .ocr-col-preview {
+      min-width: 0;
+    }
+    @media (min-width: 992px) {
+      .ocr-col-preview {
+        min-height: min(82vh, 60rem);
+        align-self: stretch;
+      }
+    }
+    .ocr-card-preview,
+    .ocr-card-result {
+      min-width: 0;
+    }
+    /* Thẻ xem trước: giới hạn chiều cao theo viewport để flex con tính đúng */
+    .ocr-card-preview {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      max-height: min(88vh, calc(100vh - 8.5rem));
+    }
+    /* Vùng body: chiếm phần còn lại dưới header; dropzone bên trong không tràn ra ngoài card */
+    .ocr-preview-card-body {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .ocr-preview-card-body > .ocr-dropzone {
+      flex: 1 1 auto;
+      min-height: 0 !important;
+      max-height: 100%;
+      overflow: hidden;
+    }
+    @media (min-width: 992px) {
+      .ocr-preview-card-body > .ocr-dropzone {
+        max-height: 100%;
+      }
+    }
+    /* Trong preview card, bỏ min-height “cứng” của dropzone để khớp ô cha (đặc biệt multi file) */
+    .ocr-preview-card-body .ocr-dropzone.ocr-dropzone--multi-files {
+      min-height: 0 !important;
+    }
+    @media (min-width: 992px) {
+      .ocr-preview-card-body .ocr-dropzone.ocr-dropzone--has-pdf:not(.ocr-dropzone--multi-files) {
+        min-height: min(48vh, 28rem) !important;
+      }
+    }
+    .ocr-preview-card-body .ocr-dropzone .ocr-dropzone-body {
+      flex: 1 1 auto;
+      min-height: 0;
+    }
+    .ocr-preview-card-body .ocr-dropzone.ocr-dropzone--multi-files .ocr-dropzone-body {
+      overflow: hidden;
+    }
+    /* Keep JSON pane resize from growing the row and stretching the preview column */
+    .ocr-card-result {
+      max-height: min(92vh, calc(100vh - 9rem));
+      width: 100%;
+    }
+    #fileLabel {
+      max-width: 12rem;
+    }
+    .ocr-dropzone {
+      flex: 1 1 auto;
+      min-height: min(280px, 42vh);
+      max-height: var(--ocr-pane-max-h);
+      display: flex;
+      flex-direction: column;
+      justify-content: stretch;
+      align-items: stretch;
+      background: rgba(0, 0, 0, 0.35);
+      border: 2px dashed rgba(255, 255, 255, 0.15) !important;
+      transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+    }
+    @media (min-width: 992px) {
+      .ocr-dropzone {
+        min-height: min(360px, 40vh);
+        max-height: min(88vh, var(--ocr-pane-max-h));
+      }
+    }
+    @media (min-width: 992px) {
+      .ocr-dropzone.ocr-dropzone--has-pdf {
+        min-height: min(68vh, 48rem);
+        max-height: min(90vh, var(--ocr-pane-max-h));
+      }
+    }
+    .ocr-dropzone-body {
+      flex: 1 1 auto;
+      min-height: 0;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      overflow-y: auto;
+    }
+    .ocr-dropzone-body:has(#previewThumbs:not(.d-none)),
+    .ocr-dropzone-body:has(#previewImg:not(.d-none)) {
+      justify-content: flex-start;
+    }
+    .ocr-dropzone.ocr-dropzone--has-pdf .ocr-dropzone-body {
+      overflow: hidden;
+      flex: 0 1 auto;
+      min-height: 0;
+    }
+    .ocr-dropzone-stack {
+      width: 100%;
+      flex: 0 1 auto;
+      min-height: 0;
+      max-width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .ocr-dropzone-stack.ocr-dropzone-stack--preview {
+      flex: 1 1 auto;
+      min-height: min(56vh, 34rem);
+      align-self: stretch;
+    }
+    /* PDF xem trước nằm ngoài stack (con trực tiếp của dropzone): stack chỉ ô lưới/ảnh */
+    .ocr-dropzone.ocr-dropzone--has-pdf .ocr-dropzone-stack--preview {
+      flex: 0 1 auto;
+      min-height: 0;
+      height: auto;
+      max-height: none;
+    }
+    .ocr-dropzone.ocr-dragover {
+      border-color: var(--bs-primary) !important;
+      background: rgba(13, 110, 253, 0.08);
+      box-shadow: inset 0 0 0 1px rgba(13, 110, 253, 0.35);
+    }
+    .ocr-dropzone--ocr-busy {
+      cursor: progress;
+    }
+    .ocr-dropzone img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+    .ocr-pdf-embed-frame {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 auto;
+      min-height: min(62vh, 40rem);
+      min-width: 0;
+      background: #3f3f46;
+    }
+    .ocr-dropzone.ocr-dropzone--has-pdf:not(.ocr-dropzone--multi-files) .ocr-pdf-embed-frame {
+      min-height: var(--ocr-pdf-embed-min);
+      flex: 1 1 auto;
+      height: 100%;
+      max-height: none;
+    }
+    .ocr-dropzone iframe,
+    .ocr-dropzone .ocr-pdf-embed-frame embed.ocr-pdf-embed {
+      width: 100%;
+      flex: 1 1 auto;
+      min-height: 0;
+      border: 0;
+      background: #3f3f46;
+    }
+
+    /* Nhiều file: lưới cố định max-height + cuộn; PDF chiếm toàn bộ chiều cao còn lại (flex) */
+    .ocr-dropzone.ocr-dropzone--multi-files .ocr-dropzone-body {
+      overflow: hidden !important;
+      overflow-x: hidden;
+      justify-content: flex-start;
+      align-items: stretch;
+    }
+    .ocr-dropzone.ocr-dropzone--multi-files.ocr-dropzone--has-pdf .ocr-dropzone-body {
+      overflow: hidden !important;
+    }
+    .ocr-dropzone-stack.ocr-dropzone-stack--multi.ocr-dropzone-stack--preview {
+      flex: 0 1 auto !important;
+      min-height: 0 !important;
+      height: auto !important;
+      max-height: none !important;
+      align-self: stretch !important;
+      align-items: stretch !important;
+    }
+    .ocr-dropzone--multi-files .ocr-preview-grid {
+      flex-shrink: 0;
+      max-height: min(44vh, 19rem);
+      z-index: 2;
+      position: relative;
+    }
+    @media (min-width: 576px) {
+      .ocr-dropzone--multi-files .ocr-preview-grid {
+        max-height: min(46vh, 21rem);
+      }
+    }
+    .ocr-dropzone--multi-files .ocr-pdf-embed-frame {
+      flex: 1 1 0 !important;
+      min-height: 12rem !important;
+      max-height: none !important;
+      height: auto !important;
+      overflow: hidden !important;
+      position: relative;
+      z-index: 1;
+      min-width: 0;
+    }
+    .ocr-dropzone--multi-files .ocr-pdf-embed-frame embed.ocr-pdf-embed {
+      flex: 1 1 auto !important;
+      min-height: 0 !important;
+      height: 100% !important;
+      max-height: none !important;
+      width: 100% !important;
+    }
+    .ocr-dropzone--multi-files #previewImg {
+      flex: 1 1 auto;
+      min-height: 0;
+      max-height: none;
+      object-fit: contain;
+    }
+    .ocr-dropzone {
+      cursor: pointer;
+    }
+    .ocr-dropzone .ocr-grid-remove,
+    .ocr-dropzone .ocr-grid-drag-h,
+    .ocr-dropzone .ocr-grid-cell {
+      cursor: default;
+    }
+    .ocr-dropzone .ocr-grid-remove {
+      cursor: pointer;
+    }
+
+    /* Modal xem PDF khi có nhiều file PDF */
+    .ocr-pdf-preview-modal-dialog {
+      height: calc(100vh - 2rem);
+      max-height: calc(100vh - 2rem);
+      margin: 1rem auto;
+    }
+    @media (max-width: 991.98px) {
+      .ocr-pdf-preview-modal-dialog {
+        height: 100vh;
+        max-height: none;
+        margin: 0;
+      }
+    }
+    #pdfPreviewModal .ocr-pdf-modal-frame {
+      min-height: min(70vh, 640px);
+      background: #3f3f46;
+    }
+    #pdfPreviewModal .ocr-pdf-modal-embed {
+      flex: 1 1 auto;
+      min-height: 0;
+      width: 100%;
+      border: 0;
+    }
+    .ocr-result-wrap {
+      flex: 1 1 auto;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
+    #out.ocr-output-text {
+      flex: 1 1 auto;
+      min-height: 0;
+      margin: 0;
+      padding: 1rem;
+      font-size: 0.8125rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow: auto;
+      font-family: ui-monospace, "Cascadia Code", "Consolas", monospace;
+      background: rgba(0, 0, 0, 0.45);
+      border-radius: 0;
+    }
+    #out.ocr-output-text:not(.placeholder):not(.ocr-output-loading-wrap) {
+      flex: 0 0 auto;
+      flex-shrink: 0;
+      height: var(--ocr-raw-band-h);
+      min-height: 12rem;
+      max-height: var(--ocr-raw-band-h);
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+      color: var(--bs-emphasis-color, var(--bs-body-color));
+    }
+    #out.ocr-output-text.placeholder {
+      color: var(--bs-secondary-color);
+      font-family: var(--bs-body-font-family);
+    }
+    #out.ocr-output-loading-wrap {
+      flex: 1 1 auto;
+      margin: 0;
+      min-height: 12rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.45);
+      border-radius: 0;
+      overflow: auto;
+    }
+    .ocr-run-pane-shell {
+      flex: 0 0 auto;
+      min-height: 0;
+      min-width: 0;
+      width: 100%;
+    }
+    .ocr-run-pane {
+      flex: 0 0 auto;
+      display: flex;
+      flex-direction: column;
+      min-height: 8rem;
+      height: 15rem;
+      max-height: min(65vh, 36rem);
+      overflow: hidden;
+      background: rgba(0, 0, 0, 0.32);
+      border-top: 1px solid rgba(148, 163, 184, 0.2);
+    }
+    .ocr-run-pane-splitter {
+      flex: 0 0 auto;
+      height: 11px;
+      margin: 0;
+      padding: 0;
+      border: 0;
+      background: linear-gradient(180deg, rgba(51, 65, 85, 0.55), rgba(30, 41, 59, 0.85));
+      cursor: ns-resize;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      touch-action: none;
+      outline: none;
+    }
+    .ocr-run-pane-splitter:hover,
+    .ocr-run-pane-splitter:focus-visible {
+      background: linear-gradient(180deg, rgba(71, 85, 105, 0.75), rgba(51, 65, 85, 0.9));
+    }
+    .ocr-run-pane-splitter:focus-visible {
+      box-shadow: inset 0 0 0 2px rgba(59, 130, 246, 0.45);
+    }
+    .ocr-run-pane-splitter-grip {
+      width: 2.75rem;
+      height: 4px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.65);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+    }
+    .ocr-run-pane .ocr-run-pane-header {
+      flex: 0 0 auto;
+      user-select: none;
+    }
+    .ocr-out-run-inner {
+      font-size: 0.8125rem;
+      line-height: 1.5;
+      min-height: 0;
+    }
+    .ocr-out-run-inner.ocr-md-preview {
+      white-space: normal;
+      font-family: var(--bs-body-font-family);
+    }
+    .ocr-md-preview h1,
+    .ocr-md-preview h2,
+    .ocr-md-preview h3 {
+      margin-top: 1rem;
+      margin-bottom: 0.5rem;
+      font-size: 1.05rem;
+      font-weight: 600;
+    }
+    .ocr-md-preview p {
+      margin-bottom: 0.65rem;
+    }
+    .ocr-md-preview ul,
+    .ocr-md-preview ol {
+      padding-left: 1.25rem;
+      margin-bottom: 0.65rem;
+    }
+    .ocr-md-preview code {
+      background: rgba(0, 0, 0, 0.45);
+      padding: 0.12em 0.35em;
+      border-radius: 0.25rem;
+      font-size: 0.88em;
+    }
+    .ocr-md-preview pre {
+      background: rgba(0, 0, 0, 0.5);
+      padding: 0.75rem;
+      border-radius: 0.35rem;
+      overflow: auto;
+      margin-bottom: 0.75rem;
+    }
+    .ocr-md-preview pre code {
+      background: none;
+      padding: 0;
+    }
+    .ocr-md-preview blockquote {
+      border-left: 3px solid rgba(125, 211, 252, 0.45);
+      margin: 0 0 0.75rem 0;
+      padding-left: 0.85rem;
+      color: var(--bs-secondary-color);
+    }
+    .ocr-md-preview table {
+      border-collapse: collapse;
+      margin-bottom: 0.75rem;
+      width: 100%;
+    }
+    .ocr-md-preview th,
+    .ocr-md-preview td {
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      padding: 0.35rem 0.5rem;
+    }
+    .ocr-md-preview a {
+      color: var(--bs-info);
+    }
+    .ocr-out-run-inner .renderjson {
+      font-family: ui-monospace, "Cascadia Code", "Consolas", monospace;
+      font-size: 0.78rem;
+    }
+    .ocr-out-run-inner .renderjson a {
+      color: var(--bs-info) !important;
+      text-decoration: none !important;
+    }
+    .ocr-out-run-inner .renderjson .syntax {
+      color: #94a3b8;
+    }
+    .ocr-out-run-inner .renderjson .string {
+      color: #86efac;
+    }
+    .ocr-out-run-inner .renderjson .number {
+      color: #fcd34d;
+    }
+    .ocr-out-run-inner .renderjson .boolean {
+      color: #c4b5fd;
+    }
+    .ocr-out-run-inner .renderjson .keyword {
+      color: #f472b6;
+    }
+    .ocr-out-run-inner .renderjson .key {
+      color: #7dd3fc;
+    }
+    .ocr-output-loading .spinner-border {
+      opacity: 0.9;
+    }
+    .ocr-pdf-progress .progress {
+      background: rgba(30, 41, 59, 0.9);
+    }
+    .ocr-token-box {
+      background: rgba(0, 0, 0, 0.28);
+      min-width: 5.75rem;
+    }
+    #pdfPageBarWrap .btn {
+      min-width: 2.25rem;
+    }
+    .ocr-hero-ocr-btn {
+      width: min(100%, 15.5rem);
+      align-self: center;
+      margin-top: 0.25rem;
+      position: relative;
+      z-index: 6;
+      isolation: isolate;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-family: inherit;
+      -webkit-appearance: none;
+      appearance: none;
+      border-radius: 0.5rem;
+      border: none;
+      padding: 0.55rem 1.1rem;
+      min-height: 2.65rem;
+      background: linear-gradient(165deg, #4d94ff 0%, #0d6efd 45%, #084298 100%) !important;
+      box-shadow:
+        0 0.25rem 0.9rem rgba(13, 110, 253, 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, 0.16);
+      transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+    }
+    .ocr-hero-ocr-btn:focus-visible {
+      outline: 3px solid rgba(125, 211, 252, 0.75);
+      outline-offset: 3px;
+    }
+    .ocr-hero-ocr-btn .ocr-hero-ocr-btn-inner {
+      display: inline-flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      padding: 0;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      line-height: 1.2;
+      color: #fff;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .ocr-hero-ocr-btn .ocr-hero-ocr-btn-inner .ocr-hero-icon {
+      pointer-events: none;
+      font-size: 1.05rem;
+      opacity: 0.95;
+    }
+    .ocr-hero-ocr-btn:not(:disabled):hover {
+      transform: translateY(-1px);
+      filter: brightness(1.05);
+      box-shadow:
+        0 0.35rem 1.1rem rgba(13, 110, 253, 0.45),
+        inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    }
+    .ocr-hero-ocr-btn:not(:disabled):active {
+      transform: translateY(0);
+      filter: brightness(0.98);
+    }
+    .ocr-hero-ocr-btn:disabled {
+      opacity: 0.48;
+      box-shadow: none;
+      filter: grayscale(0.15);
+      cursor: not-allowed;
+    }
+    .ocr-preview-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(5.25rem, 1fr));
+      gap: 0.45rem;
+      width: 100%;
+      max-height: min(42vh, 16rem);
+      overflow: auto;
+      margin-top: 0.35rem;
+      padding: 0.15rem;
+      align-content: start;
+    }
+    @media (min-width: 576px) {
+      .ocr-preview-grid {
+        grid-template-columns: repeat(auto-fill, minmax(6rem, 1fr));
+        max-height: min(48vh, 20rem);
+      }
+    }
+    .ocr-preview-grid .ocr-grid-cell {
+      position: relative;
+      aspect-ratio: 1;
+      border-radius: 0.35rem;
+      overflow: hidden;
+      cursor: grab;
+      user-select: none;
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      background: rgba(0, 0, 0, 0.35);
+      transition: box-shadow 0.15s ease, border-color 0.15s ease;
+    }
+    .ocr-preview-grid .ocr-grid-cell:hover {
+      border-color: rgba(125, 211, 252, 0.35);
+    }
+    .ocr-preview-grid .ocr-grid-cell--active {
+      outline: 2px solid var(--bs-info);
+      outline-offset: 1px;
+      border-color: rgba(125, 211, 252, 0.5);
+      box-shadow: 0 0 0 1px rgba(14, 165, 233, 0.25);
+    }
+    .ocr-preview-grid .ocr-grid-badge {
+      position: absolute;
+      left: 0.2rem;
+      top: 0.2rem;
+      font-size: 0.62rem;
+      font-weight: 600;
+      line-height: 1;
+      padding: 0.15rem 0.35rem;
+      border-radius: 0.25rem;
+      color: rgba(255, 255, 255, 0.95);
+      background: rgba(15, 23, 42, 0.75);
+      pointer-events: none;
+      z-index: 1;
+    }
+    .ocr-preview-grid .ocr-grid-remove {
+      position: absolute;
+      right: 0.15rem;
+      top: 0.15rem;
+      z-index: 3;
+      width: 1.35rem;
+      height: 1.35rem;
+      padding: 0;
+      line-height: 1.2;
+      font-size: 0.95rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 50%;
+      color: #fff;
+      background: rgba(220, 53, 69, 0.92);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .ocr-preview-grid .ocr-grid-remove:hover {
+      background: rgba(255, 77, 79, 1);
+    }
+    .ocr-preview-grid .ocr-grid-drag-h {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 1.75rem;
+      z-index: 2;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: grab;
+      color: rgba(148, 163, 184, 0.85);
+      background: linear-gradient(90deg, rgba(0, 0, 0, 0.45), transparent);
+      font-size: 0.65rem;
+      border-radius: 0.35rem 0 0 0.35rem;
+    }
+    .ocr-preview-grid .ocr-grid-drag-h:active {
+      cursor: grabbing;
+    }
+    .ocr-preview-grid .ocr-grid-cell--dragging {
+      opacity: 0.55;
+      cursor: grabbing;
+    }
+    .ocr-preview-grid .ocr-grid-cell--drop-target {
+      outline: 2px dashed rgba(125, 211, 252, 0.75);
+    }
+    .ocr-preview-grid .ocr-grid-img-wrap {
+      position: absolute;
+      left: 1.75rem;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      cursor: zoom-in;
+    }
+    .ocr-preview-grid .ocr-grid-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      pointer-events: auto;
+      -webkit-user-drag: none;
+      user-select: none;
+    }
+    .ocr-preview-grid .ocr-grid-pdf-wrap {
+      position: absolute;
+      left: 1.75rem;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.2rem;
+      padding: 0.25rem 0.15rem;
+      cursor: pointer;
+      text-align: center;
+      pointer-events: auto;
+      background: rgba(15, 23, 42, 0.55);
+    }
+    .ocr-preview-grid .ocr-grid-pdf-wrap .ocr-grid-pdf-ico {
+      font-size: 1.65rem;
+      line-height: 1;
+      color: #f87171;
+      opacity: 0.95;
+    }
+    .ocr-preview-grid .ocr-grid-pdf-wrap .ocr-grid-fname {
+      font-size: 0.58rem;
+      line-height: 1.15;
+      font-weight: 600;
+      color: rgba(248, 250, 252, 0.92);
+      max-width: 100%;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      word-break: break-word;
+    }
+    .ocr-preview-grid .ocr-grid-pdf-wrap .ocr-grid-relpath {
+      font-size: 0.5rem;
+      line-height: 1.1;
+      color: rgba(148, 163, 184, 0.9);
+      max-width: 100%;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      word-break: break-all;
+    }
+    .ocr-empty-ph {
+      flex: 0 0 auto;
+      max-width: 26rem;
+      margin-left: auto;
+      margin-right: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+      color: rgba(203, 213, 225, 0.95) !important;
+    }
+    /* Segmented file / folder picker in empty dropzone */
+    .ocr-upload-source-box {
+      display: flex;
+      width: 100%;
+      max-width: 19.5rem;
+      margin: 0 auto;
+      padding: 0.2rem;
+      border-radius: 0.45rem;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.05) inset;
+      gap: 0.2rem;
+    }
+    .ocr-upload-source-btn {
+      flex: 1 1 0;
+      min-width: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      padding: 0.42rem 0.55rem;
+      border: none;
+      border-radius: 0.32rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      line-height: 1.2;
+      color: rgba(248, 250, 252, 0.92);
+      background: transparent;
+      cursor: pointer;
+      transition:
+        background 0.15s ease,
+        color 0.15s ease,
+        box-shadow 0.15s ease;
+    }
+    .ocr-upload-source-btn i {
+      font-size: 0.95rem;
+      opacity: 0.9;
+    }
+    .ocr-upload-source-btn:hover:not(:disabled) {
+      background: rgba(59, 130, 246, 0.18);
+      color: #fff;
+      box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.25);
+    }
+    .ocr-upload-source-btn:focus-visible {
+      outline: 2px solid rgba(125, 211, 252, 0.85);
+      outline-offset: 2px;
+    }
+    .ocr-upload-source-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+    .ocr-empty-ph .text-body {
+      color: rgba(241, 245, 249, 0.98) !important;
+    }
+    .ocr-empty-ph .text-secondary {
+      color: rgba(148, 163, 184, 0.95) !important;
+    }
+    .ocr-empty-ph p {
+      text-align: center;
+      width: 100%;
+    }
+    #ocrImageZoomImg {
+      max-height: min(85vh, 900px);
+      width: auto;
+      max-width: 100%;
+      object-fit: contain;
+    }
+    .ocr-kbd-combo {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+      flex-wrap: wrap;
+      margin-top: 0.65rem;
+    }
+    .ocr-kbd {
+      display: inline-block;
+      font-family: ui-monospace, "Cascadia Code", "Consolas", monospace;
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      line-height: 1.2;
+      padding: 0.28rem 0.5rem;
+      color: rgba(255, 255, 255, 0.88);
+      background: linear-gradient(180deg, rgba(55, 65, 81, 0.95) 0%, rgba(30, 41, 59, 0.98) 100%);
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      border-radius: 0.35rem;
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.06) inset,
+        0 2px 4px rgba(0, 0, 0, 0.35);
+      min-width: 2.35rem;
+      text-align: center;
+    }
+    .ocr-kbd-plus {
+      color: rgba(148, 163, 184, 0.85);
+      font-size: 0.72rem;
+      font-weight: 500;
+      user-select: none;
+      line-height: 1;
+    }
+    .input-group-text { min-width: 2.5rem; justify-content: center; }
+    .ocr-page-footer {
+      position: relative;
+      z-index: 4;
+      clear: both;
+      margin-top: 2rem !important;
+      padding-top: 1rem !important;
+    }
+    .ocr-page-footer small {
+      opacity: 0.85;
+    }
+    .ocr-page-footer code {
+      color: rgba(148, 163, 184, 0.95) !important;
+      background: rgba(0, 0, 0, 0.35);
+      padding: 0.2rem 0.45rem;
+      border-radius: 0.3rem;
+      font-size: 0.78rem;
+    }
+    /* NVIDIA-SMI — terminal / dashboard */
+    .nvidia-smi-chip-icon {
+      width: 1.85rem;
+      height: 1.85rem;
+      background: rgba(210, 153, 34, 0.12);
+      border: 1px solid rgba(210, 153, 34, 0.28);
+      font-size: 0.9rem;
+    }
+    .nvidia-smi-card {
+      overflow: hidden;
+      background: linear-gradient(180deg, rgba(22, 27, 34, 0.98) 0%, rgba(13, 17, 23, 0.99) 100%);
+      border-color: rgba(48, 54, 61, 0.85) !important;
+    }
+    .nvidia-smi-card .card-header {
+      background: rgba(1, 4, 9, 0.55);
+      border-bottom: 1px solid rgba(48, 54, 61, 0.9);
+      padding-top: 0.55rem;
+      padding-bottom: 0.55rem;
+    }
+    .nvidia-smi-terminal {
+      position: relative;
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(ellipse 120% 80% at 50% -20%, rgba(35, 134, 54, 0.06), transparent 55%),
+        #010409;
+      border-top: 1px solid rgba(255, 255, 255, 0.04);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    }
+    .nvidia-smi-terminal::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, rgba(63, 185, 80, 0.35), transparent);
+      opacity: 0.65;
+      pointer-events: none;
+    }
+    pre.gpu-smi {
+      font-size: 0.6875rem;
+      line-height: 1.24;
+      letter-spacing: 0.01em;
+      font-variant-numeric: tabular-nums;
+      margin: 0;
+      padding: 1rem 1rem 1.1rem;
+      overflow: auto;
+      max-height: min(400px, 48vh);
+      background: transparent;
+      color: #e6edf3;
+      border-radius: 0;
+      white-space: pre;
+      font-family: "JetBrains Mono", ui-monospace, "Cascadia Code", "Consolas", "Liberation Mono", monospace;
+      text-shadow: 0 0 1px rgba(0, 0, 0, 0.35);
+    }
+    pre.gpu-smi::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    pre.gpu-smi::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.35);
+      border-radius: 4px;
+    }
+    pre.gpu-smi::-webkit-scrollbar-thumb {
+      background: rgba(110, 118, 129, 0.55);
+      border-radius: 4px;
+    }
+    pre.gpu-smi::-webkit-scrollbar-thumb:hover {
+      background: rgba(139, 148, 158, 0.65);
+    }
+    /* Small memory dump (VRAM errors): solid background, not transparent terminal */
+    #gpuMemList pre.gpu-smi {
+      background: #0a0e14;
+      color: #8b949e;
+      padding: 0.5rem;
+      border-radius: 0.375rem;
+      max-height: 140px;
+      font-size: 0.62rem;
+    }
+    @keyframes gpu-pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.45; transform: scale(0.92); }
+    }
+    .gpu-live-dot {
+      display: inline-block;
+      width: 0.45rem;
+      height: 0.45rem;
+      border-radius: 50%;
+      background: var(--bs-success);
+      animation: gpu-pulse 1.2s ease-in-out infinite;
+    }
+    /* VRAM panel (slate / segmented bar) */
+    .gpu-vram-card {
+      background: rgba(15, 23, 42, 0.55);
+      border-color: rgba(51, 65, 85, 0.6) !important;
+    }
+    .gpu-vram-card .card-header {
+      background: transparent;
+      border-bottom-color: rgba(51, 65, 85, 0.5);
+    }
+    .gpu-vram-panel {
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 0.75rem;
+      box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.45);
+      padding: 1rem 1.1rem;
+    }
+    .gpu-vram-title-line {
+      font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+      font-size: 0.65rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      color: #94a3b8;
+      line-height: 1.3;
+    }
+    .gpu-vram-pct {
+      font-family: ui-monospace, monospace;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #22d3ee;
+    }
+    .gpu-seg-bar {
+      display: flex;
+      gap: 3px;
+      width: 100%;
+      height: 12px;
+      align-items: stretch;
+      padding: 2px;
+      background: #1e293b;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .gpu-seg {
+      flex: 1 1 0;
+      min-width: 2px;
+      border-radius: 2px;
+      background: #334155;
+      transition: background 0.15s, box-shadow 0.15s;
+    }
+    .gpu-seg--on {
+      background: linear-gradient(90deg, #06b6d4, #3b82f6);
+      box-shadow: 0 0 6px rgba(6, 182, 212, 0.45);
+    }
+    .gpu-vram-used-big {
+      font-size: 1.35rem;
+      font-weight: 600;
+      color: #f8fafc;
+      letter-spacing: -0.02em;
+    }
+    .gpu-vram-used-big .unit {
+      font-size: 0.8rem;
+      font-weight: 400;
+      color: #64748b;
+    }
+    .gpu-vram-total-small {
+      font-size: 0.7rem;
+      color: #64748b;
+      font-family: ui-monospace, monospace;
+    }
+    @keyframes gpu-status-pulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.55); }
+      50% { opacity: 0.85; box-shadow: 0 0 0 4px rgba(34, 197, 94, 0); }
+    }
+    .gpu-status-dot {
+      width: 0.45rem;
+      height: 0.45rem;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .gpu-status-dot--active {
+      background: #22c55e;
+      animation: gpu-status-pulse 1.4s ease-out infinite;
+    }
+    .gpu-status-dot--idle {
+      background: #64748b;
+    }
+    .gpu-vram-card .card-body { min-height: 6rem; }
