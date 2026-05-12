@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="vi" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title id="ocrDocTitle">OCR → Markdown / JSON</title>
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+    crossorigin="anonymous"
+  />
+  <link rel="icon" href="https://trancaominh.id.vn/img/favicon.ico">
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  />
+  <!-- Font Mfizz: icon-mongodb etc. https://www.fizzed.com/oss/font-mfizz -->
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/font-mfizz@2.4.1/dist/font-mfizz.css"
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  />
+  <link rel="stylesheet" href="/assets/css/ocr-app.css" />
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg border-bottom border-secondary border-opacity-25 bg-body-tertiary">
+    <div class="container-fluid px-3 px-lg-4 d-flex flex-wrap align-items-center gap-2">
+      <span class="navbar-brand mb-0 h1 d-flex align-items-center gap-2 fs-5">
+        <i class="fa-solid fa-file-lines" aria-hidden="true"></i>
+        <span data-i18n="nav_brand">OCR Local</span>
+      </span>
+      <span class="navbar-text small d-none d-md-inline text-secondary">
+        <i class="fa-solid fa-bolt me-1 text-warning" aria-hidden="true"></i>
+        <span data-i18n="nav_tagline">OCR Local</span>
+      </span>
+      <div
+        class="ocr-lang-group"
+        role="group"
+        data-i18n-aria="lang_group_aria"
+        aria-label="Chọn ngôn ngữ giao diện"
+      >
+        <span class="ocr-lang-icon text-secondary" aria-hidden="true">
+          <i class="fa-solid fa-language"></i>
+        </span>
+        <button
+          type="button"
+          class="ocr-lang-btn ocr-lang-active"
+          id="langVi"
+          data-i18n-title="lang_vi_title"
+          data-i18n-aria="lang_vi_title"
+          title="Tiếng Việt"
+          aria-label="Tiếng Việt"
+        >
+          <span class="ocr-lang-label" data-i18n="lang_vi_native">Tiếng Việt</span>
+        </button>
+        <button
+          type="button"
+          class="ocr-lang-btn"
+          id="langEn"
+          data-i18n-title="lang_en_title"
+          data-i18n-aria="lang_en_title"
+          title="English"
+          aria-label="English"
+        >
+          <span class="ocr-lang-label" data-i18n="lang_en_native">English</span>
+        </button>
+      </div>
+      <div class="ms-lg-auto d-flex flex-wrap align-items-center gap-2 mt-2 mt-lg-0 ocr-nav-pages">
+        <span
+          class="badge rounded-pill bg-dark border border-secondary border-opacity-50 small font-monospace d-inline-flex align-items-center gap-1 px-2 py-1"
+          id="navTokenBadge"
+          data-i18n-title="nav_session_tokens_title"
+          title="Tổng token đầu vào/ra đã lưu trong lịch sử OCR (MongoDB/file)"
+        >
+          <i class="fa-solid fa-arrow-right-arrow-left text-warning" aria-hidden="true"></i>
+          <span class="text-secondary" data-i18n="token_in">Vào</span>
+          <span id="navTokInSum" class="text-info">0</span>
+          <span class="text-secondary" aria-hidden="true">/</span>
+          <span class="text-secondary" data-i18n="token_out">Ra</span>
+          <span id="navTokOutSum" class="text-success">0</span>
+        </span>
+        <span
+          class="badge rounded-pill text-wrap ocr-nav-mongo-badge bg-secondary d-inline-flex align-items-center gap-1"
+          id="navMongoBadge"
+        >
+          <i class="icon-mongodb" aria-hidden="true"></i>
+          <span id="navMongoBadgeText" class="ocr-nav-mongo-badge-text"></span>
+        </span>
+        <a class="btn btn-sm btn-outline-secondary ocr-nav-view active" id="navOcrMain" href="/" data-i18n="nav_main">OCR</a>
+        <a class="btn btn-sm btn-outline-info ocr-nav-view" id="navOcrHistory" href="/history" data-i18n="nav_history">Lịch sử OCR</a>
+        <a class="btn btn-sm btn-outline-warning ocr-nav-view" id="navOcrConfig" href="/config" data-i18n="nav_config">Cấu hình</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container-fluid px-3 px-lg-4 py-3 py-lg-4">
+    <div id="ocrViewMain">
+    <p class="text-secondary small mb-3">
+      <i class="fa-regular fa-images me-1" aria-hidden="true"></i>
+      <span data-i18n="intro_line">Tải ảnh hoặc PDF; PDF được render từng trang rồi gửi model.</span>
+    </p>
+
+    <form id="f" class="card ocr-settings-card mb-3 mb-lg-4">
+      <div class="card-header ocr-settings-header d-flex align-items-center gap-2 py-2 px-3">
+        <i class="fa-solid fa-sliders text-primary" aria-hidden="true"></i>
+        <span class="fw-semibold" data-i18n="form_config">Cấu hình</span>
+      </div>
+      <div class="card-body ocr-settings-body py-3 px-3">
+        <div class="row g-3 align-items-end ocr-settings-row">
+          <div class="col-12 col-md-6 col-xl-4 ocr-settings-field ocr-settings-field--file">
+            <label for="file" class="form-label ocr-settings-label small mb-1">
+              <i class="fa-solid fa-upload me-1" aria-hidden="true"></i><span data-i18n="form_file">File</span>
+              <span class="text-secondary fw-normal" data-i18n="form_file_hint">(nhiều ảnh / PDF)</span>
+            </label>
+            <input
+              id="file"
+              name="file"
+              class="form-control form-control-sm ocr-settings-control w-100"
+              type="file"
+              accept="image/*,.pdf,application/pdf"
+              multiple
+            />
+            <input
+              id="fileFolder"
+              type="file"
+              class="d-none"
+              tabindex="-1"
+              aria-hidden="true"
+              webkitdirectory
+              directory
+              multiple
+            />
+          </div>
+          <div class="col-6 col-md-3 col-xl-2 ocr-settings-field">
+            <label for="output" class="form-label ocr-settings-label small mb-1">
+              <i class="fa-solid fa-code me-1" aria-hidden="true"></i><span data-i18n="form_output">Đầu ra</span>
+            </label>
+            <select id="output" name="output" class="form-select form-select-sm ocr-settings-control">
+              <option value="md">Markdown</option>
+              <option value="latex">LaTeX</option>
+              <option value="json">JSON</option>
+            </select>
+          </div>
+          <div class="col-6 col-md-3 col-xl-3 ocr-settings-field">
+            <label for="merge" class="form-label ocr-settings-label small mb-1">
+              <i class="fa-regular fa-file-pdf me-1" aria-hidden="true"></i><span data-i18n="form_merge">PDF nhiều trang</span>
+            </label>
+            <select id="merge" name="merge_pages" class="form-select form-select-sm ocr-settings-control">
+              <option value="true" data-i18n="merge_opt_true">Gộp (md/latex) / theo trang (json)</option>
+              <option value="false" data-i18n="merge_opt_false">Tách từng trang (md/latex)</option>
+            </select>
+          </div>
+          <div class="col-12 col-md-6 col-xl-auto ocr-settings-field d-flex align-items-end">
+            <div class="form-check mb-1 pb-xl-1">
+              <input class="form-check-input" type="checkbox" id="ocrBackgroundJob" name="ocr_background" value="1" />
+              <label class="form-check-label small" for="ocrBackgroundJob" data-i18n="ocr_bg_job_label"
+                >Chạy ngầm (PDF nhiều trang)</label
+              >
+            </div>
+          </div>
+          <div class="col-12 col-md-6 col-xl-auto ocr-settings-field d-flex align-items-end">
+            <div class="form-check mb-1 pb-xl-1">
+              <input class="form-check-input" type="checkbox" id="ollamaThink" name="ollama_think_ui" value="1" checked />
+              <label class="form-check-label small" for="ollamaThink" data-i18n="form_ollama_think"
+                >Suy luận Ollama (think)</label
+              >
+            </div>
+          </div>
+          <div class="col-12 col-md-6 col-xl-3 ocr-settings-field ocr-settings-field--model">
+            <label for="model" class="form-label ocr-settings-label small mb-1">
+              <i class="fa-solid fa-robot me-1" aria-hidden="true"></i><span data-i18n="form_model">Model Ollama</span>
+            </label>
+            <div class="input-group input-group-sm ocr-model-select-group">
+              <span class="input-group-text ocr-input-icon" aria-hidden="true"
+                ><i class="fa-solid fa-microchip fa-fw"></i
+              ></span>
+              <select id="model" name="model" class="form-select form-select-sm ocr-settings-control">
+                <option value="nemotron3:33b">nemotron3:33b</option>
+                <option value="gemma4:e4b">gemma4:e4b</option>
+                <option value="deepseek-ocr:3b">deepseek-ocr:3b</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-12 col-md-6 col-xl-auto d-grid d-xl-block ocr-settings-field">
+            <label class="form-label ocr-settings-label small mb-1 d-none d-xl-block user-select-none" aria-hidden="true"
+              >&nbsp;</label
+            >
+            <button type="submit" id="btn" class="btn btn-primary btn-sm px-4 d-none" aria-hidden="true" tabindex="-1">
+              <i class="fa-solid fa-wand-magic-sparkles me-2" aria-hidden="true"></i><span data-i18n="btn_run_ocr">Chạy OCR</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </form>
+
+    <div class="row g-3 mb-3 mb-lg-4 align-items-stretch">
+      <div class="col-lg-8">
+        <section class="card h-100 nvidia-smi-card" data-i18n-aria="gpu_nv_section_aria" aria-label="NVIDIA-SMI realtime">
+          <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-2">
+            <span class="d-flex align-items-center gap-2 text-body">
+              <span class="d-inline-flex align-items-center justify-content-center rounded-2 nvidia-smi-chip-icon" aria-hidden="true">
+                <i class="fa-solid fa-microchip text-warning"></i>
+              </span>
+              <span class="fw-semibold small text-uppercase tracking-wide" style="letter-spacing: 0.06em">NVIDIA-SMI</span>
+              <span class="gpu-live-dot ms-1" id="gpuLiveDot" data-i18n-title="gpu_live_title" title="Đang làm mới"></span>
+            </span>
+            <div class="d-flex align-items-center gap-3 flex-wrap">
+              <small class="text-secondary font-monospace user-select-none" id="gpuFetched">—</small>
+              <div class="form-check form-switch m-0">
+                <input class="form-check-input" type="checkbox" id="gpuPause" />
+                <label class="form-check-label small text-secondary" for="gpuPause"><span data-i18n="gpu_pause">Tạm dừng</span></label>
+              </div>
+            </div>
+          </div>
+          <div class="card-body p-0 nvidia-smi-terminal">
+            <pre class="gpu-smi" id="nvsmi" role="log" aria-live="polite">Đang tải nvidia-smi…</pre>
+          </div>
+        </section>
+      </div>
+      <div class="col-lg-4">
+        <section class="card h-100 gpu-vram-card" data-i18n-aria="gpu_vram_section_aria" aria-label="VRAM GPU">
+          <div class="card-header d-flex align-items-center gap-2 py-2">
+            <i class="fa-solid fa-memory text-info" aria-hidden="true"></i>
+            <span class="small">VRAM</span>
+          </div>
+          <div class="card-body py-3 px-2 px-sm-3">
+            <div id="gpuMemList" class="d-flex flex-column gap-3">Đang tải…</div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <div class="row g-3 g-lg-4 align-items-lg-start">
+      <div class="col-lg-6 ocr-col-preview d-flex flex-column gap-3 min-h-0">
+        <div class="card ocr-card-preview flex-grow-1 d-flex flex-column min-h-0 mb-0 overflow-hidden border-secondary border-opacity-25">
+          <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <span class="d-flex align-items-center gap-2">
+              <span id="previewTitleIcon" class="text-info" aria-hidden="true"
+                ><i class="fa-solid fa-eye"></i
+              ></span>
+              <span data-i18n="preview_title">Ảnh / tài liệu</span>
+            </span>
+            <div class="d-flex align-items-center gap-2 flex-shrink-0">
+              <span class="badge text-bg-dark text-truncate max-w-100" id="fileLabel" title=""></span>
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-warning"
+                id="btnNewSession"
+                data-i18n-title="btn_new_title"
+                title="Xóa hết ảnh/tài liệu đã chọn và làm mới phiên"
+              >
+                <i class="fa-solid fa-rotate-left me-1" aria-hidden="true"></i><span data-i18n="btn_new">Tạo mới</span>
+              </button>
+            </div>
+          </div>
+          <div
+            class="card-body ocr-preview-card-body p-0 flex-grow-1 min-h-0 d-flex flex-column"
+          >
+            <div id="dropZone" class="ocr-dropzone flex-grow-1 min-h-0 position-relative p-2" tabindex="0">
+              <div class="ocr-dropzone-body">
+                <div class="ocr-empty-ph text-secondary px-3 py-4 w-100" id="emptyPh">
+                  <i class="fa-solid fa-cloud-arrow-up fa-2x mb-2 d-block opacity-50" aria-hidden="true"></i>
+                  <div
+                    class="ocr-upload-source-box"
+                    role="group"
+                    data-i18n-aria="empty_source_group_aria"
+                    aria-label="Thêm tài liệu"
+                  >
+                    <button
+                      type="button"
+                      class="ocr-upload-source-btn"
+                      id="btnEmptyPickFiles"
+                      data-i18n-title="empty_source_files_title"
+                      title="Chọn một hoặc nhiều ảnh / PDF"
+                    >
+                      <i class="fa-solid fa-file-arrow-up" aria-hidden="true"></i>
+                      <span data-i18n="empty_source_files">Tệp</span>
+                    </button>
+                    <button
+                      type="button"
+                      class="ocr-upload-source-btn"
+                      id="btnEmptyPickFolder"
+                      data-i18n-title="empty_source_folder_title"
+                      title="Chọn cả thư mục (chỉ PDF và ảnh)"
+                    >
+                      <i class="fa-solid fa-folder-open" aria-hidden="true"></i>
+                      <span data-i18n="empty_source_folder">Thư mục</span>
+                    </button>
+                  </div>
+                  <strong class="d-block text-body mb-1 mt-3" data-i18n="empty_title">Chưa có file</strong>
+                  <p class="small text-secondary mb-0 px-2" data-i18n="empty_hint">Chọn file, kéo thả, hoặc dán ảnh từ clipboard.</p>
+                  <div class="ocr-kbd-combo" data-i18n-aria="paste_shortcut_aria" aria-label="Phím tắt dán ảnh">
+                    <kbd class="ocr-kbd">Ctrl</kbd>
+                    <span class="ocr-kbd-plus" aria-hidden="true">+</span>
+                    <kbd class="ocr-kbd">V</kbd>
+                  </div>
+                </div>
+                <div
+                  id="previewDropStack"
+                  class="d-flex flex-column align-items-center gap-2 w-100 px-2 ocr-dropzone-stack"
+                >
+                  <div id="previewThumbs" class="ocr-preview-grid d-none" data-i18n-aria="thumbs_aria" aria-label="Tệp đã chọn"></div>
+                  <img id="previewImg" class="d-none rounded" data-i18n-alt="preview_alt" alt="Xem trước" />
+                </div>
+              </div>
+              <div id="previewPdfFrame" class="ocr-pdf-embed-frame d-none w-100 rounded px-2 pb-2">
+                <embed
+                  id="previewPdf"
+                  class="rounded w-100 ocr-pdf-embed"
+                  type="application/pdf"
+                  data-i18n-title="pdf_preview_title"
+                  title="Xem trước PDF"
+                />
+              </div>
+            </div>
+          </div>
+          <div
+            class="card-footer py-2 px-2 d-none border-top border-secondary border-opacity-25"
+            id="pdfPageBarWrap"
+          >
+            <span class="small text-secondary me-2 d-inline-block" data-i18n="pdf_pages_label">Xem OCR theo trang:</span>
+            <div
+              class="d-inline-flex flex-wrap gap-1 align-items-center"
+              id="pdfPageBar"
+              role="toolbar"
+              data-i18n-aria="pdf_page_toolbar_aria"
+              aria-label="Chọn trang"
+            ></div>
+          </div>
+        </div>
+        <button
+          type="button"
+          class="ocr-hero-ocr-btn mt-0"
+          id="btnOcrHero"
+          disabled
+          data-i18n-title="btn_hero_title"
+          title="Gửi ảnh/PDF đã chọn để OCR (theo cấu hình phía trên)"
+        >
+          <span class="ocr-hero-ocr-btn-inner">
+            <i class="fa-solid fa-wand-magic-sparkles ocr-hero-icon" aria-hidden="true"></i>
+            <span data-i18n="btn_run_ocr">Chạy OCR</span>
+          </span>
+        </button>
+      </div>
+      <div class="col-lg-6 d-flex flex-column min-h-0">
+        <div class="card ocr-card-result flex-grow-1 d-flex flex-column min-h-0 mb-0 overflow-hidden border-secondary border-opacity-25">
+          <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <span class="d-flex align-items-center flex-wrap gap-2">
+              <span class="d-flex align-items-center gap-2">
+                <i class="fa-solid fa-align-left text-success" aria-hidden="true"></i>
+                <span data-i18n="result_title">Văn bản OCR</span>
+              </span>
+              <select
+                id="ocrPageSelect"
+                class="form-select form-select-sm d-none"
+                style="width: auto; min-width: 8rem"
+                data-i18n-title="ocr_page_title"
+                title="Tất cả hoặc từng trang (PDF nhiều trang)"
+                data-i18n-aria="ocr_page_aria"
+                aria-label="Phạm vi hiển thị OCR"
+              >
+                <option value="all">Tất cả</option>
+              </select>
+            </span>
+            <div class="d-flex align-items-center gap-2 flex-shrink-0">
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-secondary"
+                id="btnCopyOcr"
+                disabled
+                data-i18n-title="btn_copy_title"
+                title="Sao chép nội dung đang hiển thị"
+              >
+                <i class="fa-regular fa-copy me-1" aria-hidden="true"></i><span data-i18n="btn_copy">Sao chép</span>
+              </button>
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-info"
+                id="btnRunOcr"
+                disabled
+                data-i18n-title="btn_run_preview_title"
+                title="Markdown → xem trước HTML; JSON → cây thu gọn"
+              >
+                <i class="fa-solid fa-play me-1" aria-hidden="true"></i><span data-i18n="btn_run_preview">Chạy</span>
+              </button>
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-success"
+                id="btnDownloadOcr"
+                disabled
+                data-i18n-title="btn_download_title"
+                title="Tải file kết quả (Markdown hoặc JSON)"
+              >
+                <i class="fa-solid fa-download me-1" aria-hidden="true"></i><span data-i18n="btn_download">Tải xuống</span>
+              </button>
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-success"
+                id="btnDownloadOcrZip"
+                disabled
+                data-i18n-title="btn_download_zip_title"
+                title="Nhiều file đầu vào: tải ZIP, mỗi file một .md / .tex / .json"
+              >
+                <i class="fa-solid fa-file-zipper me-1" aria-hidden="true"></i><span data-i18n="btn_download_zip">Tải ZIP</span>
+              </button>
+            </div>
+          </div>
+          <div class="card-body p-0 ocr-result-wrap rounded-bottom flex-grow-1 min-h-0">
+            <div
+              id="out"
+              class="ocr-output-text placeholder"
+              role="region"
+              data-i18n-aria="out_aria"
+              aria-label="Kết quả OCR (raw)"
+            >Kết quả hiển thị ở đây sau khi chạy OCR.</div>
+          </div>
+          <div class="card-footer py-2 small border-top border-secondary border-opacity-25">
+            <div class="d-flex flex-wrap align-items-start justify-content-between gap-2">
+              <div class="text-secondary flex-grow-1 min-w-0" id="status" role="status"></div>
+              <div
+                class="ocr-token-box flex-shrink-0 rounded border border-secondary border-opacity-25 px-2 py-1 text-end"
+                id="ocrTokenBox"
+                data-i18n-title="token_title"
+                title="Theo Ollama (prompt_eval_count / eval_count). PDF nhiều trang: cộng dồn mỗi trang."
+                data-i18n-aria="token_aria"
+                aria-label="Token đầu vào và đầu ra OCR"
+              >
+                <div class="text-secondary text-uppercase mb-1" style="font-size: 0.62rem; letter-spacing: 0.06em">
+                  <span data-i18n="token_label">Token</span>
+                </div>
+                <div class="font-monospace lh-sm">
+                  <span class="text-secondary" data-i18n="token_in">Vào</span>
+                  <span class="text-info ms-1" id="ocrTokIn">—</span>
+                </div>
+                <div class="font-monospace lh-sm">
+                  <span class="text-secondary" data-i18n="token_out">Ra</span>
+                  <span class="text-success ms-1" id="ocrTokOut">—</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-3 g-lg-4 ocr-run-pane-row">
+      <div class="col-12">
+        <div id="ocrRunPaneShell" class="ocr-run-pane-shell d-flex flex-column min-w-0">
+          <div
+            id="ocrRunPane"
+            class="ocr-run-pane d-none"
+            role="region"
+            data-i18n-aria="run_pane_aria"
+            aria-label="Xem Markdown hoặc cây JSON"
+            data-i18n-title="run_pane_title"
+            title="Kéo thanh ngang để chỉnh chiều cao"
+          >
+            <div
+              id="ocrRunPaneSplitter"
+              class="ocr-run-pane-splitter"
+              role="separator"
+              aria-orientation="horizontal"
+              aria-controls="outRun"
+              tabindex="0"
+              data-i18n-title="run_pane_splitter_title"
+              data-i18n-aria="run_pane_splitter_title"
+              aria-label="Kéo thanh ngang lên hoặc xuống để chỉnh chiều cao"
+              title="Kéo thanh ngang để chỉnh chiều cao vùng xem"
+            >
+              <span class="ocr-run-pane-splitter-grip" aria-hidden="true"></span>
+            </div>
+            <div
+              class="ocr-run-pane-header d-flex align-items-center justify-content-between gap-2 px-2 py-1 bg-black bg-opacity-30 border-bottom border-secondary border-opacity-10"
+            >
+              <span class="small text-secondary mb-0">
+                <i class="fa-solid fa-eye me-1" aria-hidden="true"></i>
+                <span data-i18n="run_pane_header">Xem / cây JSON (sau khi bấm Chạy)</span>
+              </span>
+              <span class="small text-secondary opacity-75 d-none d-sm-inline" style="font-size: 0.68rem; white-space: nowrap">
+                <i class="fa-solid fa-grip-lines me-1" aria-hidden="true"></i><span data-i18n="run_pane_resize_hint">Kéo thanh phía trên</span>
+              </span>
+            </div>
+            <div id="outRun" class="ocr-out-run-inner flex-grow-1 overflow-auto p-3"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+
+    <section id="ocrViewHistory" class="d-none" aria-label="OCR history">
+      <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+        <h2 class="h5 mb-0 d-flex align-items-center gap-2">
+          <i class="fa-solid fa-clock-rotate-left text-info" aria-hidden="true"></i>
+          <span data-i18n="history_title">Lịch sử OCR</span>
+        </h2>
+        <button type="button" class="btn btn-sm btn-outline-secondary" id="btnHistoryRefresh" data-i18n="history_refresh">
+          Làm mới
+        </button>
+      </div>
+      <p class="text-secondary small d-none mb-3" id="ocrHistoryFileHint" data-i18n="history_file_hint"></p>
+      <p class="text-secondary small d-none mb-0" id="ocrHistoryEmpty" data-i18n="history_empty"></p>
+      <div class="list-group ocr-history-list" id="ocrHistoryList"></div>
+    </section>
+
+    <section id="ocrViewConfig" class="d-none" aria-label="Server config">
+      <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+        <h2 class="h5 mb-0 d-flex align-items-center gap-2">
+          <i class="fa-solid fa-gear text-warning" aria-hidden="true"></i>
+          <span data-i18n="config_title">Cấu hình server</span>
+        </h2>
+      </div>
+      <div class="ocr-config-intro text-secondary small mb-3" id="ocrConfigIntro">
+        <div class="mb-3">
+          <div class="fw-semibold text-body-secondary mb-1" data-i18n="config_intro_storage_title">Lưu cấu hình đi đâu</div>
+          <p class="mb-0" data-i18n="config_intro_storage_body"></p>
+        </div>
+        <div class="mb-3">
+          <div class="fw-semibold text-body-secondary mb-1" data-i18n="config_intro_precedence_title">Trùng tên với biến trong .env</div>
+          <ul class="mb-0 ps-3">
+            <li class="mb-1" data-i18n="config_intro_precedence_li1"></li>
+            <li class="mb-0" data-i18n="config_intro_precedence_li2"></li>
+          </ul>
+        </div>
+        <div class="mb-0">
+          <div class="fw-semibold text-body-secondary mb-1" data-i18n="config_intro_env_only_title">MongoDB và biến hệ thống</div>
+          <p class="mb-0" data-i18n="config_intro_env_only_body"></p>
+        </div>
+      </div>
+      <form id="cfgForm" class="card border-secondary border-opacity-25 bg-body-tertiary mb-3">
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-12">
+              <h3 class="h6 text-secondary border-bottom border-secondary border-opacity-25 pb-2">
+                <i class="fa-solid fa-robot me-1"></i><span data-i18n="config_group_ollama">Ollama</span>
+              </h3>
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label small mb-0" for="cfgOLLAMA_HOST">OLLAMA_HOST</label>
+              <input type="text" class="form-control form-control-sm" id="cfgOLLAMA_HOST" name="OLLAMA_HOST" autocomplete="off" />
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label small mb-0" for="cfgOLLAMA_MODEL">OLLAMA_MODEL</label>
+              <input type="text" class="form-control form-control-sm" id="cfgOLLAMA_MODEL" name="OLLAMA_MODEL" autocomplete="off" />
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="form-label small mb-0" for="cfgOLLAMA_TIMEOUT_SEC">OLLAMA_TIMEOUT_SEC</label>
+              <input type="number" step="any" class="form-control form-control-sm" id="cfgOLLAMA_TIMEOUT_SEC" name="OLLAMA_TIMEOUT_SEC" />
+            </div>
+            <div class="col-12 col-md-8">
+              <label class="form-label small mb-0" for="cfgOLLAMA_KEEP_ALIVE">OLLAMA_KEEP_ALIVE</label>
+              <input
+                type="text"
+                class="form-control form-control-sm font-monospace"
+                id="cfgOLLAMA_KEEP_ALIVE"
+                name="OLLAMA_KEEP_ALIVE"
+                autocomplete="off"
+                placeholder="0, 5m, …"
+              />
+              <p class="small text-secondary mb-0 mt-1" data-i18n="config_ollama_keep_alive_hint"></p>
+            </div>
+            <div class="col-12 col-md-6">
+              <div class="form-check mt-1">
+                <input class="form-check-input" type="checkbox" id="cfgOLLAMA_THINK" name="OLLAMA_THINK" value="1" />
+                <label class="form-check-label small" for="cfgOLLAMA_THINK">OLLAMA_THINK</label>
+              </div>
+              <p class="small text-secondary mb-0 mt-1" data-i18n="config_ollama_think_hint"></p>
+            </div>
+            <div class="col-12">
+              <h3 class="h6 text-secondary border-bottom border-secondary border-opacity-25 pb-2 mt-2">
+                <i class="fa-regular fa-file-image me-1"></i><span data-i18n="config_group_ocr">OCR / PDF</span>
+              </h3>
+            </div>
+            <div class="col-6 col-md-3">
+              <label class="form-label small mb-0" for="cfgOCR_PDF_SCALE">OCR_PDF_SCALE</label>
+              <input type="number" step="any" class="form-control form-control-sm" id="cfgOCR_PDF_SCALE" name="OCR_PDF_SCALE" />
+            </div>
+            <div class="col-6 col-md-3">
+              <label class="form-label small mb-0" for="cfgOCR_MAX_PARALLEL">OCR_MAX_PARALLEL</label>
+              <input type="number" class="form-control form-control-sm" id="cfgOCR_MAX_PARALLEL" name="OCR_MAX_PARALLEL" min="1" />
+            </div>
+            <div class="col-6 col-md-3">
+              <label class="form-label small mb-0" for="cfgOCR_MAX_EDGE">OCR_MAX_EDGE</label>
+              <input type="number" class="form-control form-control-sm" id="cfgOCR_MAX_EDGE" name="OCR_MAX_EDGE" min="0" />
+            </div>
+            <div class="col-6 col-md-3">
+              <label class="form-label small mb-0" for="cfgOCR_JPEG_QUALITY">OCR_JPEG_QUALITY</label>
+              <input type="number" class="form-control form-control-sm" id="cfgOCR_JPEG_QUALITY" name="OCR_JPEG_QUALITY" min="0" max="100" placeholder="empty=PNG" />
+            </div>
+            <div class="col-12">
+              <h3 class="h6 text-secondary border-bottom border-secondary border-opacity-25 pb-2 mt-2">
+                <i class="fa-solid fa-microchip me-1"></i><span data-i18n="config_group_gpu">GPU panel</span>
+              </h3>
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label small mb-0" for="cfgNVIDIA_SMI_PATH">NVIDIA_SMI_PATH</label>
+              <input type="text" class="form-control form-control-sm" id="cfgNVIDIA_SMI_PATH" name="NVIDIA_SMI_PATH" autocomplete="off" />
+            </div>
+            <div class="col-6 col-md-3">
+              <label class="form-label small mb-0" for="cfgNVIDIA_SMI_TIMEOUT_SEC">NVIDIA_SMI_TIMEOUT_SEC</label>
+              <input type="number" step="any" class="form-control form-control-sm" id="cfgNVIDIA_SMI_TIMEOUT_SEC" name="NVIDIA_SMI_TIMEOUT_SEC" />
+            </div>
+            <div class="col-6 col-md-3">
+              <label class="form-label small mb-0" for="cfgGPU_WS_INTERVAL_SEC">GPU_WS_INTERVAL_SEC</label>
+              <input type="number" step="any" class="form-control form-control-sm" id="cfgGPU_WS_INTERVAL_SEC" name="GPU_WS_INTERVAL_SEC" />
+            </div>
+            <div class="col-12">
+              <h3 class="h6 text-secondary border-bottom border-secondary border-opacity-25 pb-2 mt-2">
+                <i class="icon-mongodb me-1" aria-hidden="true"></i><span data-i18n="config_group_mongo">MongoDB</span>
+              </h3>
+              <p class="small text-secondary mb-2" data-i18n="config_mongo_env_note"></p>
+            </div>
+            <div class="col-12">
+              <span class="form-label small mb-0 d-block">MONGODB_URI</span>
+              <div class="form-control form-control-sm font-monospace bg-body-secondary text-secondary" id="cfgMongoMasked" style="min-height: 2rem"></div>
+            </div>
+            <div class="col-12 col-md-6">
+              <span class="form-label small mb-0 d-block">MONGODB_DB_NAME</span>
+              <div class="form-control form-control-sm bg-body-secondary text-secondary" id="cfgMongoDbNameDisplay"></div>
+            </div>
+            <div class="col-12 col-md-6">
+              <span class="form-label small mb-0 d-block">MONGODB_COLLECTION_OCR</span>
+              <div class="form-control form-control-sm bg-body-secondary text-secondary" id="cfgMongoCollDisplay"></div>
+            </div>
+            <div class="col-12">
+              <h3 class="h6 text-secondary border-bottom border-secondary border-opacity-25 pb-2 mt-2">
+                <i class="fa-solid fa-clock-rotate-left me-1"></i><span data-i18n="config_group_history">Lịch sử / khác</span>
+              </h3>
+            </div>
+            <div class="col-12 col-md-4">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="cfgOCR_HISTORY_STORE_INPUT_B64" name="OCR_HISTORY_STORE_INPUT_B64" value="1" />
+                <label class="form-check-label small" for="cfgOCR_HISTORY_STORE_INPUT_B64">OCR_HISTORY_STORE_INPUT_B64</label>
+              </div>
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="form-label small mb-0" for="cfgOCR_HISTORY_MAX_INPUT_BYTES">OCR_HISTORY_MAX_INPUT_BYTES</label>
+              <input type="number" class="form-control form-control-sm" id="cfgOCR_HISTORY_MAX_INPUT_BYTES" name="OCR_HISTORY_MAX_INPUT_BYTES" min="0" />
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="form-label small mb-0" for="cfgCORS_ALLOW_ORIGINS">CORS_ALLOW_ORIGINS</label>
+              <input type="text" class="form-control form-control-sm" id="cfgCORS_ALLOW_ORIGINS" name="CORS_ALLOW_ORIGINS" autocomplete="off" />
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label small mb-0" for="cfgAPP_TITLE">APP_TITLE</label>
+              <input type="text" class="form-control form-control-sm" id="cfgAPP_TITLE" name="APP_TITLE" autocomplete="off" />
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label small mb-0" for="cfgAPP_VERSION">APP_VERSION</label>
+              <input type="text" class="form-control form-control-sm" id="cfgAPP_VERSION" name="APP_VERSION" autocomplete="off" />
+            </div>
+          </div>
+          <div class="mt-3 d-flex flex-wrap align-items-center gap-2">
+            <button type="submit" class="btn btn-sm btn-primary" data-i18n="config_save">Lưu cấu hình</button>
+            <span class="small text-secondary" id="cfgStatus" role="status"></span>
+          </div>
+        </div>
+      </form>
+    </section>
+
+    <footer class="ocr-page-footer mt-4 pt-2 border-top border-secondary border-opacity-25">
+      <small class="text-secondary">
+        <i class="fa-solid fa-terminal me-1" aria-hidden="true"></i>
+        <code>uvicorn backend_ocr.main:app --host 0.0.0.0 --port 8000</code>
+      </small>
+    </footer>
+  </main>
+
+  <div
+    class="modal fade"
+    id="ocrImageZoomModal"
+    tabindex="-1"
+    aria-labelledby="ocrImageZoomTitleLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-fullscreen-lg-down">
+      <div class="modal-content bg-dark text-light border-secondary shadow">
+        <div class="modal-header border-secondary py-2 py-md-3">
+          <h5 class="modal-title text-truncate me-2" id="ocrImageZoomTitleLabel"></h5>
+          <button
+            type="button"
+            class="btn-close btn-close-white"
+            data-bs-dismiss="modal"
+            data-i18n-aria="modal_close_aria"
+            aria-label="Đóng"
+          ></button>
+        </div>
+        <div class="modal-body text-center p-2 p-md-3 bg-black bg-opacity-25">
+          <img id="ocrImageZoomImg" src="" alt="" class="rounded" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div
+    class="modal fade"
+    id="pdfPreviewModal"
+    tabindex="-1"
+    aria-labelledby="pdfPreviewModalTitle"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog modal-dialog-centered modal-xl modal-fullscreen-lg-down ocr-pdf-preview-modal-dialog">
+      <div class="modal-content bg-dark text-light border-secondary shadow h-100 d-flex flex-column min-h-0">
+        <div class="modal-header border-secondary py-2 py-md-3 flex-shrink-0">
+          <h5 class="modal-title text-truncate me-2" id="pdfPreviewModalTitle">PDF</h5>
+          <button
+            type="button"
+            class="btn-close btn-close-white"
+            data-bs-dismiss="modal"
+            data-i18n-aria="modal_close_aria"
+            aria-label="Đóng"
+          ></button>
+        </div>
+        <div class="modal-body p-0 flex-grow-1 min-h-0 d-flex flex-column bg-black bg-opacity-25">
+          <div class="ocr-pdf-modal-frame flex-grow-1 min-h-0 d-flex flex-column">
+            <embed
+              id="previewPdfModal"
+              class="ocr-pdf-embed ocr-pdf-modal-embed rounded-0"
+              type="application/pdf"
+              data-i18n-title="pdf_preview_title"
+              title="Xem trước PDF"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div
+    class="modal fade"
+    id="ocrHistoryDetailModal"
+    tabindex="-1"
+    aria-labelledby="ocrHistoryDetailTitle"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog modal-dialog-scrollable modal-lg modal-fullscreen-lg-down">
+      <div class="modal-content bg-dark text-light border-secondary shadow">
+        <div class="modal-header border-secondary py-2 py-md-3">
+          <h5 class="modal-title font-monospace small text-truncate me-2" id="ocrHistoryDetailTitle"></h5>
+          <button
+            type="button"
+            class="btn-close btn-close-white"
+            data-bs-dismiss="modal"
+            data-i18n-aria="modal_close_aria"
+            aria-label="Đóng"
+          ></button>
+        </div>
+        <div class="modal-body p-0">
+          <ul class="nav nav-tabs nav-tabs-dark px-2 pt-2 border-secondary" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button
+                class="nav-link active"
+                id="hist-tab-meta"
+                data-bs-toggle="tab"
+                data-bs-target="#hist-pane-meta"
+                type="button"
+                role="tab"
+                data-i18n="history_tab_meta"
+              >
+                Tóm tắt
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button
+                class="nav-link"
+                id="hist-tab-inputs"
+                data-bs-toggle="tab"
+                data-bs-target="#hist-pane-inputs"
+                type="button"
+                role="tab"
+                data-i18n="history_tab_inputs"
+              >
+                File đầu vào
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button
+                class="nav-link"
+                id="histTabOutputBtn"
+                data-bs-toggle="tab"
+                data-bs-target="#hist-pane-output"
+                type="button"
+                role="tab"
+              >
+                Kết quả
+              </button>
+            </li>
+          </ul>
+          <div class="tab-content p-3">
+            <div class="tab-pane fade show active" id="hist-pane-meta" role="tabpanel">
+              <div id="histDetailMeta" class="small"></div>
+            </div>
+            <div class="tab-pane fade" id="hist-pane-inputs" role="tabpanel">
+              <div class="table-responsive">
+                <table class="table table-sm table-dark table-borderless" id="histDetailInputsTable">
+                  <thead>
+                    <tr class="text-secondary">
+                      <th data-i18n="history_col_file">Tên file</th>
+                      <th data-i18n="history_col_type">Loại</th>
+                      <th data-i18n="history_col_size">Kích thước</th>
+                      <th>PDF</th>
+                      <th data-i18n="history_col_download">Tải</th>
+                    </tr>
+                  </thead>
+                  <tbody id="histDetailInputsBody"></tbody>
+                </table>
+              </div>
+            </div>
+            <div class="tab-pane fade" id="hist-pane-output" role="tabpanel">
+              <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+                <span class="small text-secondary" id="histDetailOutputHint"></span>
+                <button type="button" class="btn btn-sm btn-outline-info" id="histDetailDownloadResult">
+                  <i class="fa-solid fa-download me-1" aria-hidden="true"></i><span data-i18n="history_dl_result_btn">Tải kết quả</span>
+                </button>
+              </div>
+              <pre
+                id="histDetailOutput"
+                class="small text-secondary mb-0 ocr-history-output-pre"
+                style="white-space: pre-wrap; word-break: break-word; max-height: 65vh"
+              ></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/renderjson@1.4.0/renderjson.min.js" crossorigin="anonymous"></script>
+  <script src="/assets/js/ocr-app.js"></script>
+</body>
+</html>
